@@ -1,0 +1,7 @@
+.venv/
+work/
+out/
+dist/
+models/
+bin/
+__pycache__/
