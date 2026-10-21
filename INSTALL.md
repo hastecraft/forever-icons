@@ -1,6 +1,10 @@
-# HD icons for WoW Forever
+# forever-icons
 
-Every icon in the game, redrawn at 4× (64×64 → 256×256) with sharp mipmaps.
+Every icon in WoW Forever, upscaled 4× (64×64 → 256×256) with sharp mipmaps.
+
+All icons are the work of Blizzard Entertainment and all credit for them belongs to Blizzard's artists. This is an
+unofficial, non-commercial fan project, not affiliated with or endorsed by Blizzard. I claim no rights to the icons.
+World of Warcraft and Blizzard Entertainment are trademarks or registered trademarks of Blizzard Entertainment, Inc.
 
 ## Install
 

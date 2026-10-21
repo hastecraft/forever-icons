@@ -10,7 +10,7 @@ def main():
     build = json.loads((ROOT / 'work' / 'manifest.json').read_text())['build']
     dist = ROOT / 'dist'
     dist.mkdir(exist_ok=True)
-    zpath = dist / f'wow-hd-icons-{build}.zip'
+    zpath = dist / f'forever-icons-{build}.zip'
     files = sorted((ROOT / 'out' / 'Interface' / 'Icons').glob('*.blp'))
     # BLPs are already DXT-compressed, so storing them is nearly as small as deflating and much faster
     with zipfile.ZipFile(zpath, 'w', zipfile.ZIP_DEFLATED, compresslevel=1) as z:
