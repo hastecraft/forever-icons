@@ -4,6 +4,12 @@ A fan-made project that upscales every icon in WoW Forever from 64×64 to 256×2
 
 [Download the icon pack](../../releases/latest) · [How to install it](INSTALL.md)
 
+![One icon before and after](docs/hero.png)
+
+![Twelve icons before and after](docs/comparison.png)
+
+Originals are shown stretched, the way the game draws a 64 px icon at a larger size.
+
 ## Credits and rights
 
 All icons are the work of **Blizzard Entertainment**. Every icon in this pack is an upscaled copy of Blizzard's
@@ -33,6 +39,7 @@ Also thanks to:
 | 3 | `tools/encode.py` | Makes sharp mipmaps (Lanczos in linear light, premultiplied alpha). Uses DXT1 for opaque icons and DXT5 only where there's real transparency, and writes BLP2 files the game loads. |
 | 4 | `tools/install.py` | Copies the icons into a game folder and records what it added. `--uninstall` removes exactly those files. |
 | 5 | `tools/pack.py` | Zips the icons with `INSTALL.md` for a release. |
+| 6 | `tools/showcase.py` | Renders the before/after images in `docs/`. |
 
 `tools/preview.py NAME ...` renders a side-by-side sheet: original, bicubic, both models and the final pick.
 
