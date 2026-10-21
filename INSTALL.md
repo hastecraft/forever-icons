@@ -24,5 +24,5 @@ Close the game and delete the `Interface\Icons` folder from your game folder. Th
 - The icons only replace the game's art on your own screen. Nothing is sent to the server.
 - A patch that adds or changes icons won't update these files. Changed icons will show the old picture until the
   pack is rebuilt for the new build.
-- Each icon uses up to 16 times the video memory of the original (about 85 KB instead of 5 KB). Only icons on
-  screen are loaded, so this is a few MB in practice.
+- Each icon uses about 17 times the video memory of the original (69 KB instead of 4 KB). Only icons the game has
+  loaded count, so a few hundred icons come to about 7 to 20 MB of video memory. The pack takes 2 GB on disk.
