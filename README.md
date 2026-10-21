@@ -1,10 +1,8 @@
-# forever-icons
+<h1><img src="docs/logo.png" width="44" height="44" align="top" alt=""> forever-icons</h1>
 
 A fan-made project that upscales every icon in WoW Forever from 64×64 to 256×256.
 
 [Download the icon pack](../../releases/latest) · [How to install it](INSTALL.md)
-
-![One icon before and after](docs/hero.png)
 
 ![Twelve icons before and after](docs/comparison.png)
 
