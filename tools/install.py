@@ -2,7 +2,8 @@
 
   install.py                 copy out/Interface/Icons into the game's Interface/Icons
   install.py --uninstall     delete exactly the files a previous install added
-  --game <folder>            the game folder holding Interface (default: the WoW Forever beta)
+  --game <folder>            the game folder holding Interface (default: WoW Forever)
+  --src <folder>             the icons to install, e.g. out-frame8/Interface/Icons for the black-frame pack
 
 The list of installed files is kept in <game>/Interface/Icons/.hd-icons-installed.txt.
 Files that were already there before the first install are never overwritten or deleted.
@@ -12,7 +13,7 @@ import shutil
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_GAME = r'G:\World of Warcraft\_classic_beta_'
+DEFAULT_GAME = r'G:\World of Warcraft\_forever_'
 LIST_NAME = '.hd-icons-installed.txt'
 
 

@@ -1,6 +1,7 @@
 .venv/
 work/
 out/
+out-*/
 dist/
 models/
 bin/

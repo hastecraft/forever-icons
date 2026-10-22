@@ -6,7 +6,15 @@ Per icon:
   - DXT1 when the icon is opaque (most of them, half the size), DXT1 with 1-bit alpha when the
     original had 1-bit alpha, DXT5 otherwise. Compression is texconv's (DirectXTex).
   - Written as BLP2 in the same layout the game's own icons use.
+  - Optionally (--frame) the painted grey bevel is cropped off (--crop) and the art is redrawn
+    inside a solid frame. Only square icons that are opaque inside the crop get one; shaped icons
+    (round tracking icons, faction crests) are left as they are.
 Output: out/Interface/Icons/<name>.blp
+
+  encode.py                                  the plain pack
+  encode.py --frame 8 --out out-frame8       the black-frame pack
+  encode.py --frame 6 --crop 24 --frame-color 1a1a1a --out out-custom
+Frame and crop are in pixels of a 256 px icon and scale with smaller ones.
 """
 import argparse
 import json
@@ -14,6 +22,7 @@ import os
 import shutil
 import struct
 import subprocess
+from functools import partial
 from multiprocessing import Pool
 from pathlib import Path
 
@@ -74,11 +83,31 @@ def choose_format(rgba, icon):
     return 'BC3_UNORM', 8, 7
 
 
-def prepare(icon):
+def add_frame(rgba, frame, crop, color):
+    """Crop `crop` px off each side (the painted bevel), scale the art back up in linear light
+    to fit inside a `frame` px border of `color`. Sizes are relative to a 256 px icon."""
+    size = rgba.shape[0]
+    crop, frame = round(crop * size / 256), max(1, round(frame * size / 256))
+    inner = srgb_to_linear(rgba[crop:size - crop, crop:size - crop, :3].astype(np.float32) / 255)
+    fit = (size - 2 * frame,) * 2
+    inner = np.stack([_resize(inner[..., c], fit) for c in range(3)], -1)
+    out = np.empty_like(rgba)
+    out[..., :3] = color
+    out[..., 3] = 255
+    out[frame:size - frame, frame:size - frame, :3] = (linear_to_srgb(inner) * 255 + 0.5).clip(0, 255)
+    return out
+
+
+def prepare(icon, frame=0, crop=0, color=(0, 0, 0)):
     """Worker: mips + format choice, writes the uncompressed DDS. Returns (name, fmt, depth, type)."""
     rgba = np.array(Image.open(WORK / 'up' / f"{icon['name']}.png").convert('RGBA'))
     if icon['alpha_depth'] == 0:  # the game draws these opaque whatever the decoded alpha says
         rgba[..., 3] = 255
+    if frame and rgba.shape[0] == rgba.shape[1]:
+        # most icons are transparent only in the rounded corners, which the crop removes
+        k = round(crop * rgba.shape[0] / 256)
+        if rgba[k:rgba.shape[0] - k, k:rgba.shape[1] - k, 3].min() >= OPAQUE:
+            rgba = add_frame(rgba, frame, crop, color)
     fmt, depth, atype = choose_format(rgba, icon)
     write_dds(WORK / 'dds_in' / fmt / f"{icon['name']}.dds", mip_chain(rgba))
     return icon['name'], fmt, depth, atype
@@ -115,7 +144,11 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--jobs', type=int, default=max(1, (os.cpu_count() or 4) - 2))
     ap.add_argument('--out', default=str(ROOT / 'out'))
+    ap.add_argument('--frame', type=int, default=0, help='frame width in px at 256 px (0 = no frame)')
+    ap.add_argument('--crop', type=int, default=20, help='px cropped off each side before framing (the bevel)')
+    ap.add_argument('--frame-color', default='000000', help='frame color as hex RRGGBB')
     args = ap.parse_args()
+    color = tuple(bytes.fromhex(args.frame_color))
 
     manifest = json.loads((WORK / 'manifest.json').read_text())
     icons = [i for i in manifest['icons'] if (WORK / 'up' / f"{i['name']}.png").exists()]
@@ -126,7 +159,8 @@ def main():
 
     print(f'mipmaps for {len(icons)} icons on {args.jobs} processes')
     with Pool(args.jobs) as pool:
-        chosen = {name: (fmt, depth, atype) for name, fmt, depth, atype in pool.imap_unordered(prepare, icons, chunksize=32)}
+        work = partial(prepare, frame=args.frame, crop=args.crop, color=color)
+        chosen = {name: (fmt, depth, atype) for name, fmt, depth, atype in pool.imap_unordered(work, icons, chunksize=32)}
 
     for fmt in ('BC1_UNORM', 'BC3_UNORM'):
         files = sorted((WORK / 'dds_in' / fmt).glob('*.dds'))

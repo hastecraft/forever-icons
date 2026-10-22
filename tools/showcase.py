@@ -1,4 +1,5 @@
-"""README images: docs/logo.png (the HD Onyxia head buff icon) and docs/comparison.png (a before/after grid).
+"""README images: docs/logo.png (the HD Onyxia head buff icon), docs/comparison.png (a before/after grid)
+and docs/frames.png (the plain pack next to the black-frame pack, from out-frame8/).
 
 Originals are stretched with bicubic, the way the game shows a 64 px icon drawn bigger.
 HD icons are decoded from the final BLPs in out/, so the images show exactly what ships.
@@ -9,6 +10,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parent.parent
 BG, PANEL, TEXT, DIM = (17, 19, 24), (28, 31, 38), (236, 238, 242), (150, 156, 168)
+MID = (78, 83, 94)
 LOGO = 'inv_misc_head_dragon_01'  # Rallying Cry of the Dragonslayer
 GRID = ['spell_holy_flashheal', 'ability_warrior_charge', 'inv_misc_rune_01', 'spell_fire_fireball02',
         'spell_nature_lightning', 'inv_potion_54', 'spell_shadow_shadowbolt', 'spell_frost_frostbolt02',
@@ -28,8 +30,8 @@ def original(name, size):
     return Image.open(ROOT / 'work' / 'src' / f'{name}.png').convert('RGB').resize((size, size), Image.BICUBIC)
 
 
-def hd(name, size):
-    return Image.open(ROOT / 'out' / 'Interface' / 'Icons' / f'{name}.blp').convert('RGB').resize((size, size), Image.LANCZOS)
+def hd(name, size, out='out'):
+    return Image.open(ROOT / out / 'Interface' / 'Icons' / f'{name}.blp').convert('RGB').resize((size, size), Image.LANCZOS)
 
 
 def logo(path):
@@ -56,12 +58,28 @@ def grid(path, cols=3):
     img.save(path, optimize=True)
 
 
+def frames(path, count=6):
+    tile, gap, pad, label = 168, 12, 24, 150
+    rows = [('forever-icons', 'out'), ('Black frame', 'out-frame8')]
+    w = pad + label + count * tile + (count - 1) * gap + pad
+    h = pad + len(rows) * tile + (len(rows) - 1) * gap + pad
+    img = Image.new('RGB', (w, h), MID)  # light enough that a black frame shows against it
+    d = ImageDraw.Draw(img)
+    for r, (title, out) in enumerate(rows):
+        y = pad + r * (tile + gap)
+        d.text((pad, y + tile // 2), title, font=font(18, True), fill=TEXT, anchor='lm')
+        for i, name in enumerate(GRID[:count]):
+            img.paste(hd(name, tile, out), (pad + label + i * (tile + gap), y))
+    img.save(path, optimize=True)
+
+
 def main():
     docs = ROOT / 'docs'
     docs.mkdir(exist_ok=True)
     logo(docs / 'logo.png')
     grid(docs / 'comparison.png')
-    print(docs / 'logo.png', docs / 'comparison.png')
+    frames(docs / 'frames.png')
+    print(docs / 'logo.png', docs / 'comparison.png', docs / 'frames.png')
 
 
 if __name__ == '__main__':

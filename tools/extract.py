@@ -27,7 +27,7 @@ def decode(data, encoding, w, h):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--wow', default=r'G:\World of Warcraft')
-    ap.add_argument('--product', default='wow_classic_beta')
+    ap.add_argument('--product', default='wowf')
     ap.add_argument('--listfile', default=str(ROOT / 'work' / 'community-listfile.csv'))
     ap.add_argument('--limit', type=int, default=0, help='only the first N icons (for trial runs)')
     args = ap.parse_args()
