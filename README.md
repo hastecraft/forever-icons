@@ -53,8 +53,13 @@ Also thanks to:
 
 Icons that are already 256 px or larger are left alone. Encrypted icons for unreleased content are skipped.
 
-A few icon-like textures live outside `Interface/Icons`, such as the key ring in the bag bar. They are listed in
+A few icon-like textures live outside `Interface/Icons`, such as the older key ring button art. They are listed in
 `EXTRAS` in `tools/extract.py` and go through the same steps, keeping their own game paths.
+
+The key ring on the bag bar is different: it's a cell of the action bar atlas (`Interface/HUD/UIActionBarC60.blp`
+and its 2× version), which also holds the gryphons and slot frames. `tools/atlas.py` writes both atlas files at
+2048 px. The key ring cell goes through the same models as the icons, and the rest of the atlas is only resized, so
+it looks the same as before. Run it after `encode.py`, since `encode.py` clears the `Interface` folder it writes to.
 
 ## Building it yourself
 
@@ -73,6 +78,8 @@ to `models/`, converting each to `.safetensors` with `torch.load(..., weights_on
 python -I tools/extract.py --wow "C:\Program Files (x86)\World of Warcraft" --product wowf
 .venv\Scripts\python -I tools/upscale.py --min-ssim 0.80
 .venv\Scripts\python -I tools/encode.py
+.venv\Scripts\python -I tools/encode.py --frame 8 --out out-frame8
+.venv\Scripts\python -I tools/atlas.py
 python -I tools/install.py --game "C:\Program Files (x86)\World of Warcraft\_forever_"
 python -I tools/pack.py
 ```
@@ -92,6 +99,7 @@ The frame is applied when encoding, so you can make your own without upscaling a
 
 ```
 .venv\Scripts\python -I tools/encode.py --frame 8 --out out-frame8
+.venv\Scripts\python -I tools/atlas.py --out out-frame8
 python -I tools/install.py --src out-frame8 --game "C:\Program Files (x86)\World of Warcraft\_forever_"
 python -I tools/pack.py --src out-frame8 --name black-frame
 ```

@@ -19,7 +19,7 @@ World of Warcraft and Blizzard Entertainment are trademarks or registered tradem
    `C:\Program Files (x86)\World of Warcraft\_forever_`.
 3. Copy the `Interface` folder from this zip into it, merging with the folder that's already there.
    You should end up with `...\_forever_\Interface\Icons\` full of `.blp` files. The key ring art goes to
-   `Interface\Buttons` and `Interface\ContainerFrame`.
+   `Interface\HUD`, `Interface\Buttons` and `Interface\ContainerFrame`.
 4. Start the game.
 
 To switch to the other pack, do the same with its zip and let it replace the files.
@@ -27,14 +27,17 @@ To switch to the other pack, do the same with its zip and let it replace the fil
 ## Uninstall
 
 Close the game and delete the `Interface\Icons` folder from your game folder. Also delete the key ring files:
-`UI-Button-KeyRing*.blp` in `Interface\Buttons` and `KeyRing-Bag-Icon.blp` in `Interface\ContainerFrame` (or those
-two folders, if nothing else uses them). The game falls back to its own art.
+`UIActionBarC60.blp` and `UIActionBar2xC60.blp` in `Interface\HUD`, `UI-Button-KeyRing*.blp` in `Interface\Buttons`
+and `KeyRing-Bag-Icon.blp` in `Interface\ContainerFrame` (or those three folders, if nothing else uses them). The
+game falls back to its own art.
 
 ## Notes
 
 - The icons only replace the game's art on your own screen. Nothing is sent to the server.
 - A patch that adds or changes icons won't update these files. Changed icons will show the old picture until the
   pack is rebuilt for the new build.
+- The bag bar's key ring is part of the action bar art file, which also holds the gryphons and slot frames. If a
+  patch changes that art, delete the two files in `Interface\HUD` until the pack is rebuilt.
 - UI addons that skin action buttons (ElvUI, for example) already trim the icon edges and draw their own border.
   With those the black frame gets trimmed away, so use the main pack.
 - Each icon uses more video memory than the original's 4 KB: about 69 KB in the main pack and 44 KB in the
