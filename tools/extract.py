@@ -1,4 +1,5 @@
-"""Step 1: pull every interface/icons BLP out of the local game data as RGBA PNGs.
+"""Step 1: pull every interface/icons BLP, plus the few icon-like textures in EXTRAS, out of the
+local game data as RGBA PNGs.
 
 Writes work/src/<name>.png and work/manifest.json (FileDataID, game path, size and BLP format per icon).
 """
@@ -15,6 +16,15 @@ sys.path.insert(0, str(Path(__file__).parent))
 import casc  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
+
+# Icon-like textures that live outside Interface/Icons, by game path. Options are copied into the
+# manifest entry: 'crop' overrides encode.py --crop for art without the grey bevel.
+EXTRAS = {
+    'Interface/ContainerFrame/KeyRing-Bag-Icon.blp': {'crop': 0},  # the key ring slot on the bag bar
+    'Interface/Buttons/UI-Button-KeyRing.blp': {},
+    'Interface/Buttons/UI-Button-KeyRing-Down.blp': {},
+    'Interface/Buttons/UI-Button-KeyRing-Highlight.blp': {},
+}
 
 
 def decode(data, encoding, w, h):
@@ -36,13 +46,21 @@ def main():
     print(f'{storage.build_name}: {len(storage.root)} files')
 
     icons = []
+    extras = {p.lower(): p for p in EXTRAS}
     with open(args.listfile, encoding='utf-8') as f:
         for line in f:
             fdid, path = line.rstrip('\n').split(';', 1)
             low = path.lower()
-            if low.startswith('interface/icons/') and low.endswith('.blp') and int(fdid) in storage.root:
+            if int(fdid) not in storage.root:
+                continue
+            if low in extras:
+                icons.append((int(fdid), extras[low]))
+            elif low.startswith('interface/icons/') and low.endswith('.blp'):
                 icons.append((int(fdid), path))
     icons.sort()
+    missing_extras = set(EXTRAS) - {p for _, p in icons}
+    if missing_extras:
+        print(f'extras not in this build: {sorted(missing_extras)}')
     if args.limit:
         icons = icons[:args.limit]
 
@@ -70,9 +88,12 @@ def main():
             print(f'  {path}: {e}')
             skipped['bad'] += 1
             continue
-        manifest.append({'fdid': fdid, 'path': path, 'name': name, 'w': w, 'h': h,
-                         'encoding': encoding, 'alpha_depth': alpha_depth,
-                         'alpha_type': alpha_type, 'mips': mips})
+        entry = {'fdid': fdid, 'path': path, 'name': name, 'w': w, 'h': h,
+                 'encoding': encoding, 'alpha_depth': alpha_depth,
+                 'alpha_type': alpha_type, 'mips': mips}
+        if path in EXTRAS:
+            entry.update(extra=True, **EXTRAS[path])
+        manifest.append(entry)
         if n % 2000 == 0:
             print(f'  {n}/{len(icons)}')
     (ROOT / 'work' / 'manifest.json').write_text(json.dumps({'build': storage.build_name, 'icons': manifest}, indent=0))

@@ -53,6 +53,9 @@ Also thanks to:
 
 Icons that are already 256 px or larger are left alone. Encrypted icons for unreleased content are skipped.
 
+A few icon-like textures live outside `Interface/Icons`, such as the key ring in the bag bar. They are listed in
+`EXTRAS` in `tools/extract.py` and go through the same steps, keeping their own game paths.
+
 ## Building it yourself
 
 You need an NVIDIA GPU, Python 3.13 and a local WoW Forever install.
@@ -89,6 +92,6 @@ The frame is applied when encoding, so you can make your own without upscaling a
 
 ```
 .venv\Scripts\python -I tools/encode.py --frame 8 --out out-frame8
-python -I tools/install.py --src out-frame8\Interface\Icons --game "C:\Program Files (x86)\World of Warcraft\_forever_"
+python -I tools/install.py --src out-frame8 --game "C:\Program Files (x86)\World of Warcraft\_forever_"
 python -I tools/pack.py --src out-frame8 --name black-frame
 ```

@@ -18,14 +18,17 @@ World of Warcraft and Blizzard Entertainment are trademarks or registered tradem
 2. Find your game folder: the one holding `Interface` and the game's `.exe`, for example
    `C:\Program Files (x86)\World of Warcraft\_forever_`.
 3. Copy the `Interface` folder from this zip into it, merging with the folder that's already there.
-   You should end up with `...\_forever_\Interface\Icons\` full of `.blp` files.
+   You should end up with `...\_forever_\Interface\Icons\` full of `.blp` files. The key ring art goes to
+   `Interface\Buttons` and `Interface\ContainerFrame`.
 4. Start the game.
 
 To switch to the other pack, do the same with its zip and let it replace the files.
 
 ## Uninstall
 
-Close the game and delete the `Interface\Icons` folder from your game folder. The game falls back to its own icons.
+Close the game and delete the `Interface\Icons` folder from your game folder. Also delete the key ring files:
+`UI-Button-KeyRing*.blp` in `Interface\Buttons` and `KeyRing-Bag-Icon.blp` in `Interface\ContainerFrame` (or those
+two folders, if nothing else uses them). The game falls back to its own art.
 
 ## Notes
 

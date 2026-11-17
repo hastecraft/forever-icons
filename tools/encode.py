@@ -9,7 +9,8 @@ Per icon:
   - Optionally (--frame) the painted grey bevel is cropped off (--crop) and the art is redrawn
     inside a solid frame. Only square icons that are opaque inside the crop get one; shaped icons
     (round tracking icons, faction crests) are left as they are.
-Output: out/Interface/Icons/<name>.blp
+Output: out/Interface/Icons/<name>.blp, and the extras (extract.EXTRAS) at their own game paths,
+e.g. out/Interface/ContainerFrame/KeyRing-Bag-Icon.blp.
 
   encode.py                                  the plain pack
   encode.py --frame 8 --out out-frame8       the black-frame pack
@@ -103,6 +104,7 @@ def prepare(icon, frame=0, crop=0, color=(0, 0, 0)):
     rgba = np.array(Image.open(WORK / 'up' / f"{icon['name']}.png").convert('RGBA'))
     if icon['alpha_depth'] == 0:  # the game draws these opaque whatever the decoded alpha says
         rgba[..., 3] = 255
+    crop = icon.get('crop', crop)
     if frame and rgba.shape[0] == rgba.shape[1]:
         # most icons are transparent only in the rounded corners, which the crop removes
         k = round(crop * rgba.shape[0] / 256)
@@ -172,19 +174,20 @@ def main():
         subprocess.run([str(TEXCONV), '-nologo', '-y', '-f', fmt, '-o', str(WORK / 'dds_out' / fmt), '-flist', str(flist)],
                        check=True, stdout=subprocess.DEVNULL)
 
-    dest = Path(args.out) / 'Interface' / 'Icons'
-    shutil.rmtree(dest, ignore_errors=True)
-    dest.mkdir(parents=True)
+    out = Path(args.out)
+    shutil.rmtree(out / 'Interface', ignore_errors=True)
     counts = {}
     for icon in icons:
         fmt, depth, atype = chosen[icon['name']]
         levels = dds_levels(WORK / 'dds_out' / fmt / f"{icon['name']}.dds")
         w = icon['w'] * min(4, 256 // max(icon['w'], icon['h']))
         h = icon['h'] * min(4, 256 // max(icon['w'], icon['h']))
-        write_blp(dest / f"{icon['name']}.blp", w, h, levels, depth, atype, icon['mips'] | 1)
+        dest = out / (icon['path'] if icon.get('extra') else f"Interface/Icons/{icon['name']}.blp")
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        write_blp(dest, w, h, levels, depth, atype, icon['mips'] | 1)
         key = 'DXT5' if fmt == 'BC3_UNORM' else ('DXT1 1-bit alpha' if depth else 'DXT1')
         counts[key] = counts.get(key, 0) + 1
-    total = sum(p.stat().st_size for p in dest.glob('*.blp'))
+    total = sum(p.stat().st_size for p in (out / 'Interface').rglob('*.blp'))
     print(f'wrote {len(icons)} BLPs ({total / 2**30:.2f} GB): {counts}')
 
 
